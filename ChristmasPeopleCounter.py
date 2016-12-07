@@ -1,15 +1,18 @@
+import datetime
 import platform
 import time
+# import logging
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from flask_mail import Mail, Message
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 
-
 from GPIO_counter.counter import Motion
 
 # from models import People as people
+
+# logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -51,26 +54,19 @@ class People(db.Model):
         return '<People Count is: %r>' % self.count
 
 
-# def check_people():
-#     # print(motion.start_sensing())
-#     # while True:
-#     if motion.start_sensing():
-#         # global counter
-#         # counter += 1
-#         # socketio.emit('more_people', {'people_count': counter})
-#         # print(counter)
-#         print (True)
-#     else:
-#         # print(False)
-#         pass
-#     # time.sleep(0.5)
+def check_people():
+    while True:
+        if motion.start_sensing(time.time()):
+            print ('oooooooooooo')
+            socketio.emit()
+            time.sleep(0.7)
 
 
 # sched1.add_job(check_people, 'interval', seconds=0.2, id='count_people', replace_existing=True)
 
 
 @app.route('/')
-def hello_world():
+def index():
     return render_template('index.html')
 
 
@@ -114,15 +110,16 @@ def reset():
 @app.route('/start_counting')
 def resume_counting():
     sched1.start()
+    sched1.add_job(check_people, 'date', next_run_time=datetime.datetime.now(), id='count_people', replace_existing=True)
     print ('Counting Started')
-    return 'Counting Started'
-
+    return redirect('/')
 
 @app.route('/stop_counting')
 def pause_counting():
+    sched1.remove_job('count_people')
     sched1.shutdown(wait=False)
     print ('Counting Stopped')
-    return 'Counting Stopped'
+    return redirect('/')
 
 
 @app.route('/send_mail', methods=['POST'])

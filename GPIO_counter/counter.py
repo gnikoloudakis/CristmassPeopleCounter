@@ -25,8 +25,12 @@ class Motion(object):
 
     def start_sensing(self, stamp):
         if gpio.input(self.pir_pin_1):
-            time.sleep(0.7)
+            time.sleep(1.5)
             if gpio.input(self.pir_pin_2):
-                if (time.time() - stamp) >= 0.7:
+                if (time.time() - stamp) >= 1:
                     time.sleep(1)
-                    print ('222222')
+                    return True
+                else:
+                    return False
+            else:
+                return False

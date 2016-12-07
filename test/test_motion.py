@@ -4,5 +4,6 @@ import datetime, time
 motion = Motion()
 
 while True:
-    motion.start_sensing(time.time())
-    time.sleep(0.7)
+    if motion.start_sensing(time.time()):
+        print ('oooooooooooo')
+        time.sleep(0.7)
